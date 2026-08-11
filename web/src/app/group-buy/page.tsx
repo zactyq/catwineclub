@@ -3,9 +3,11 @@ import ImagePlaceholder from "@/components/ImagePlaceholder";
 import ClaimForm from "@/components/ClaimForm";
 import { getViewer } from "@/lib/access";
 import { listWines } from "@/lib/data/wines";
+import { requestClaimRemovalAction } from "./actions";
 
 export default async function GroupBuyPage() {
-  const [wines, viewer] = await Promise.all([listWines(), getViewer()]);
+  const viewer = await getViewer();
+  const wines = await listWines(viewer.status === "member" ? viewer.email : undefined);
   const canClaim = viewer.status === "member" && viewer.isApproved;
 
   return (
@@ -80,6 +82,28 @@ export default async function GroupBuyPage() {
               <p className="text-micro text-muted-gray">
                 {wine.quantityRemaining} of {wine.QuantityAvailable} left
               </p>
+              {wine.myClaimedQuantity > 0 && (
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-caption font-medium text-grass-green">
+                    You&apos;ve claimed {wine.myClaimedQuantity} bottle
+                    {wine.myClaimedQuantity === 1 ? "" : "s"} 🍷
+                  </p>
+                  {wine.myRemovalRequested ? (
+                    <span className="shrink-0 text-micro text-muted-gray">
+                      Removal requested
+                    </span>
+                  ) : (
+                    <form action={requestClaimRemovalAction.bind(null, wine.Id)}>
+                      <button
+                        type="submit"
+                        className="shrink-0 text-micro text-alert-red underline underline-offset-2"
+                      >
+                        Request removal
+                      </button>
+                    </form>
+                  )}
+                </div>
+              )}
 
               {wine.Status === "open" && wine.quantityRemaining > 0 ? (
                 canClaim ? (

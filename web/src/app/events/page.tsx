@@ -1,7 +1,9 @@
 import Link from "next/link";
 import SignUpForm from "@/components/SignUpForm";
+import ImagePlaceholder from "@/components/ImagePlaceholder";
 import { getViewer } from "@/lib/access";
 import { listEvents } from "@/lib/data/events";
+import { attachmentUrl } from "@/lib/nocodb";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString(undefined, {
@@ -13,8 +15,13 @@ function formatDate(iso: string) {
   });
 }
 
+function googleMapsUrl(location: string) {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
+}
+
 export default async function EventsPage() {
-  const [events, viewer] = await Promise.all([listEvents(), getViewer()]);
+  const viewer = await getViewer();
+  const events = await listEvents(viewer.status === "member" ? viewer.email : undefined);
   const canSignUp = viewer.status === "member" && viewer.isApproved;
 
   return (
@@ -48,13 +55,38 @@ export default async function EventsPage() {
               key={event.Id}
               className="flex flex-col gap-3 rounded-cards bg-white p-6 shadow-subtle"
             >
+              {event.Image?.[0] ? (
+                // eslint-disable-next-line @next/next/no-img-element -- self-hosted NocoDB, not on Next's image optimizer allowlist
+                <img
+                  src={attachmentUrl(event.Image[0])}
+                  alt={event.Title}
+                  className="aspect-[4/3] w-full rounded-illustration object-cover"
+                />
+              ) : (
+                <ImagePlaceholder label={event.Title} className="aspect-[4/3] w-full" />
+              )}
               <div>
-                <h3 className="text-heading font-medium text-heading-charcoal">
+                <Link
+                  href={`/events/${event.Id}`}
+                  className="text-heading font-medium text-heading-charcoal hover:text-ember-orange"
+                >
                   {event.Title}
-                </h3>
+                </Link>
                 <p className="text-caption text-muted-gray">
                   {formatDate(event.EventDate)}
-                  {event.Location ? ` · ${event.Location}` : ""}
+                  {event.Location && (
+                    <>
+                      {" · "}
+                      <a
+                        href={googleMapsUrl(event.Location)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-link-blue underline underline-offset-2"
+                      >
+                        {event.Location}
+                      </a>
+                    </>
+                  )}
                 </p>
               </div>
               {event.Description && (
@@ -64,7 +96,15 @@ export default async function EventsPage() {
                 {event.spotsRemaining} of {event.Capacity} spots left
               </p>
 
-              {event.spotsRemaining > 0 ? (
+              {event.mySignup ? (
+                <p className="text-caption font-medium text-grass-green">
+                  You&apos;re signed up
+                  {event.mySignup.plusOnes > 0
+                    ? ` (+${event.mySignup.plusOnes} plus-one${event.mySignup.plusOnes === 1 ? "" : "s"})`
+                    : ""}{" "}
+                  🎉
+                </p>
+              ) : event.spotsRemaining > 0 ? (
                 canSignUp ? (
                   <SignUpForm eventId={event.Id} spotsRemaining={event.spotsRemaining} />
                 ) : viewer.status === "member" ? (

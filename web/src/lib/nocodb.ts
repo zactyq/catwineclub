@@ -2,6 +2,21 @@ import "server-only";
 
 const NOCODB_URL = process.env.NOCODB_URL ?? "http://localhost:8081";
 const NOCODB_API_TOKEN = process.env.NOCODB_API_TOKEN ?? "";
+// Same value as NOCODB_URL in practice, but named for what it's used for:
+// building URLs that get embedded in HTML sent to the browser.
+const NOCODB_PUBLIC_URL = process.env.NOCODB_PUBLIC_URL ?? NOCODB_URL;
+
+export type Attachment = {
+  path: string;
+  title: string;
+  mimetype: string;
+  size: number;
+};
+
+/** Public, unsigned URL for a stored attachment — no expiry, unlike signedPath. */
+export function attachmentUrl(attachment: Attachment): string {
+  return `${NOCODB_PUBLIC_URL}/${attachment.path}`;
+}
 
 export const TABLES = {
   wineListings: process.env.NOCODB_TABLE_WINE_LISTINGS ?? "",
@@ -10,6 +25,10 @@ export const TABLES = {
   eventSignups: process.env.NOCODB_TABLE_EVENT_SIGNUPS ?? "",
   membershipApplications:
     process.env.NOCODB_TABLE_MEMBERSHIP_APPLICATIONS ?? "",
+  admins: process.env.NOCODB_TABLE_ADMINS ?? "",
+  eventWines: process.env.NOCODB_TABLE_EVENT_WINES ?? "",
+  wineReviews: process.env.NOCODB_TABLE_WINE_REVIEWS ?? "",
+  eventPhotos: process.env.NOCODB_TABLE_EVENT_PHOTOS ?? "",
 } as const;
 
 type Query = Record<string, string | number | undefined>;
@@ -85,6 +104,22 @@ export async function updateRecord<T>(
     method: "PATCH",
     body: JSON.stringify({ Id: id, ...fields }),
   });
+}
+
+/** Uploads a file to NocoDB's storage and returns its attachment metadata. */
+export async function uploadFile(file: File): Promise<Attachment> {
+  const form = new FormData();
+  form.append("file", file, file.name);
+  const res = await fetch(`${NOCODB_URL}/api/v2/storage/upload`, {
+    method: "POST",
+    headers: { "xc-token": NOCODB_API_TOKEN },
+    body: form,
+  });
+  if (!res.ok) {
+    throw new Error(`NocoDB upload -> ${res.status}: ${await res.text()}`);
+  }
+  const [attachment] = (await res.json()) as Attachment[];
+  return attachment;
 }
 
 export async function deleteRecord(tableId: string, id: number): Promise<void> {

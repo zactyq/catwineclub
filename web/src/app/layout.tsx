@@ -36,7 +36,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col font-sans">
         <Nav viewer={viewer} />
         <main className="flex flex-1 flex-col">{children}</main>
-        <Footer />
+        <Footer viewer={viewer} />
       </body>
     </html>
   );

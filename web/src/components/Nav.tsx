@@ -3,10 +3,10 @@ import type { Viewer } from "@/lib/access";
 import SignOutButton from "@/components/SignOutButton";
 
 const navLinks = [
-  { label: "About Us", href: "/" },
+  { label: "Home", href: "/" },
   { label: "Events", href: "/events" },
   { label: "Group Buy", href: "/group-buy" },
-  { label: "Wine Agent", href: "/wine-agent" },
+  { label: "Rules", href: "/rules" },
 ];
 
 export default function Nav({ viewer }: { viewer: Viewer }) {
@@ -52,6 +52,12 @@ export default function Nav({ viewer }: { viewer: Viewer }) {
               >
                 {viewer.isApproved ? "Member" : "Pending Approval"}
               </span>
+              <Link
+                href="/profile"
+                className="rounded-buttons px-3.5 py-2 text-caption text-heading-charcoal transition-opacity hover:opacity-70"
+              >
+                Profile
+              </Link>
               <SignOutButton className="rounded-buttons px-3.5 py-2 text-caption text-heading-charcoal transition-opacity hover:opacity-70" />
             </>
           ) : (

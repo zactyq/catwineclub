@@ -67,6 +67,11 @@ const TABLES = [
       },
       { column_name: "MemberEmail", title: "MemberEmail", uidt: "Email" },
       { column_name: "Quantity", title: "Quantity", uidt: "Number" },
+      {
+        column_name: "RemovalRequested",
+        title: "RemovalRequested",
+        uidt: "Checkbox",
+      },
     ],
   },
   {
@@ -82,6 +87,7 @@ const TABLES = [
         title: "CreatedByEmail",
         uidt: "Email",
       },
+      { column_name: "Image", title: "Image", uidt: "Attachment" },
     ],
   },
   {
@@ -112,6 +118,52 @@ const TABLES = [
         uidt: "Email",
       },
       { column_name: "ReviewedAt", title: "ReviewedAt", uidt: "DateTime" },
+    ],
+  },
+  {
+    title: "Admins",
+    columns: [
+      { column_name: "Email", title: "Email", uidt: "Email" },
+      { column_name: "AddedByEmail", title: "AddedByEmail", uidt: "Email" },
+    ],
+  },
+  {
+    title: "EventWines",
+    columns: [
+      { column_name: "EventId", title: "EventId", uidt: "Number" },
+      { column_name: "WineName", title: "WineName", uidt: "SingleLineText" },
+      { column_name: "Vintage", title: "Vintage", uidt: "SingleLineText" },
+      {
+        column_name: "BroughtByEmail",
+        title: "BroughtByEmail",
+        uidt: "Email",
+      },
+    ],
+  },
+  {
+    title: "WineReviews",
+    columns: [
+      { column_name: "EventWineId", title: "EventWineId", uidt: "Number" },
+      {
+        column_name: "ReviewerEmail",
+        title: "ReviewerEmail",
+        uidt: "Email",
+      },
+      { column_name: "Rating", title: "Rating", uidt: "Number" },
+      { column_name: "Comment", title: "Comment", uidt: "LongText" },
+    ],
+  },
+  {
+    title: "EventPhotos",
+    columns: [
+      { column_name: "EventId", title: "EventId", uidt: "Number" },
+      {
+        column_name: "UploadedByEmail",
+        title: "UploadedByEmail",
+        uidt: "Email",
+      },
+      { column_name: "Photo", title: "Photo", uidt: "Attachment" },
+      { column_name: "Caption", title: "Caption", uidt: "SingleLineText" },
     ],
   },
 ];
@@ -244,6 +296,10 @@ async function main() {
     NOCODB_TABLE_EVENTS: tableIds.Events,
     NOCODB_TABLE_EVENT_SIGNUPS: tableIds.EventSignups,
     NOCODB_TABLE_MEMBERSHIP_APPLICATIONS: tableIds.MembershipApplications,
+    NOCODB_TABLE_ADMINS: tableIds.Admins,
+    NOCODB_TABLE_EVENT_WINES: tableIds.EventWines,
+    NOCODB_TABLE_WINE_REVIEWS: tableIds.WineReviews,
+    NOCODB_TABLE_EVENT_PHOTOS: tableIds.EventPhotos,
   });
 
   console.log("Done.");

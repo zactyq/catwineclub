@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getViewer } from "@/lib/access";
+import { uploadFile } from "@/lib/nocodb";
 import {
   SignupError,
   createEvent,
@@ -46,6 +47,12 @@ export async function createEventAction(formData: FormData) {
     throw new Error("Title, date, and a positive capacity are required.");
   }
 
+  const imageFile = formData.get("image");
+  const image =
+    imageFile instanceof File && imageFile.size > 0
+      ? await uploadFile(imageFile)
+      : undefined;
+
   await createEvent({
     title,
     eventDate: new Date(eventDate).toISOString(),
@@ -53,6 +60,7 @@ export async function createEventAction(formData: FormData) {
     location: String(formData.get("location") ?? "").trim() || undefined,
     capacity,
     createdByEmail: viewer.email,
+    image,
   });
 
   revalidatePath("/events");

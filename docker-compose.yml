@@ -7,6 +7,9 @@ services:
     environment:
       NC_ADMIN_EMAIL: ${NOCODB_ADMIN_EMAIL:-admin@catwineclub.local}
       NC_ADMIN_PASSWORD: ${NOCODB_ADMIN_PASSWORD:-changeme123!}
+      # Lets NocoDB build correct absolute URLs (e.g. attachment links) once
+      # it's reachable at db.catwine.club instead of localhost.
+      NC_PUBLIC_URL: ${NOCODB_PUBLIC_URL:-http://localhost:8081}
     volumes:
       - nocodb_data:/usr/app/data
 

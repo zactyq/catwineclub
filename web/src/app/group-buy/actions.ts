@@ -8,6 +8,7 @@ import {
   claimWine,
   createWine,
   createWinesBulk,
+  requestClaimRemoval,
   type NewWineInput,
 } from "@/lib/data/wines";
 
@@ -31,6 +32,15 @@ export async function claimWineAction(
   }
   revalidatePath("/group-buy");
   return { success: true };
+}
+
+export async function requestClaimRemovalAction(wineId: number) {
+  const viewer = await getViewer();
+  if (viewer.status !== "member") {
+    throw new Error("You need to be signed in to do that.");
+  }
+  await requestClaimRemoval(wineId, viewer.email);
+  revalidatePath("/group-buy");
 }
 
 export async function createWineAction(formData: FormData) {

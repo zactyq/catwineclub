@@ -63,6 +63,18 @@ export default async function NewEventPage() {
 
         <label className="flex flex-col gap-2">
           <span className="text-caption font-medium text-heading-charcoal">
+            Image <span className="text-muted-gray">(optional)</span>
+          </span>
+          <input
+            name="image"
+            type="file"
+            accept="image/*"
+            className="rounded-cards border border-stone-border bg-cream-canvas px-4 py-2.5 text-caption text-heading-charcoal outline-none file:mr-3 file:rounded-buttons file:border-0 file:bg-ink-black file:px-3 file:py-1.5 file:text-micro file:font-semibold file:text-cream-canvas"
+          />
+        </label>
+
+        <label className="flex flex-col gap-2">
+          <span className="text-caption font-medium text-heading-charcoal">
             Capacity (total headcount, including plus-ones)
           </span>
           <input

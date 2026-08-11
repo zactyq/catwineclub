@@ -16,10 +16,10 @@ export default function ClaimForm({
     {}
   );
 
-  if (state.success) {
-    return <p className="text-caption font-medium text-grass-green">Claimed! 🍷</p>;
-  }
-
+  // The "you've claimed N" badge above this form is server-rendered from the
+  // database, so it stays accurate even if this transient state resets on
+  // revalidation — this success line is just an immediate nicety, not the
+  // source of truth (a claim never silently disappears from here).
   return (
     <form action={formAction} className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
@@ -39,6 +39,9 @@ export default function ClaimForm({
           {pending ? "Claiming…" : "Claim"}
         </button>
       </div>
+      {state.success && (
+        <p className="text-micro font-medium text-grass-green">Added!</p>
+      )}
       {state.error && <p className="text-micro text-alert-red">{state.error}</p>}
     </form>
   );

@@ -1,6 +1,7 @@
 import Link from "next/link";
+import type { Viewer } from "@/lib/access";
 
-export default function Footer() {
+export default function Footer({ viewer }: { viewer: Viewer }) {
   return (
     <footer className="mt-auto w-full bg-stone-surface">
       <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-8 px-4 py-16 sm:px-6 md:flex-row md:items-start md:justify-between">
@@ -18,8 +19,8 @@ export default function Footer() {
             <span className="text-caption font-medium text-heading-charcoal">
               Club
             </span>
-            <Link href="/" className="text-caption text-body-brown hover:text-heading-charcoal">
-              About Us
+            <Link href="/rules" className="text-caption text-body-brown hover:text-heading-charcoal">
+              Rules &amp; Guidelines
             </Link>
             <Link href="/events" className="text-caption text-body-brown hover:text-heading-charcoal">
               Events
@@ -27,9 +28,11 @@ export default function Footer() {
             <Link href="/group-buy" className="text-caption text-body-brown hover:text-heading-charcoal">
               Group Buy
             </Link>
-            <Link href="/apply" className="text-caption text-body-brown hover:text-heading-charcoal">
-              Apply to Join
-            </Link>
+            {viewer.status !== "member" && (
+              <Link href="/apply" className="text-caption text-body-brown hover:text-heading-charcoal">
+                Apply to Join
+              </Link>
+            )}
           </div>
 
           <div className="flex flex-col gap-3">

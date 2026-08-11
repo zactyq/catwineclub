@@ -74,3 +74,13 @@ export async function isApprovedMember(email: string): Promise<boolean> {
   );
   return approved.length > 0;
 }
+
+export async function getApprovedApplication(
+  email: string
+): Promise<MembershipApplication | null> {
+  const approved = await listRecords<MembershipApplication>(
+    TABLES.membershipApplications,
+    { where: `(Email,eq,${email})~and(Status,eq,approved)`, limit: 1 }
+  );
+  return approved[0] ?? null;
+}
