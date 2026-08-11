@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@theme {
+  /* Fonts — --font-sans (Inter/body) and --font-display (headline face) are
+     mapped to the CSS vars next/font generates in layout.tsx */
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-heading), ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Colors */
+  --color-cream-canvas: #fbfaf9;
+  --color-stone-surface: #f2f0ed;
+  --color-sand-surface: #f6f4ef;
+  --color-ink-black: #121212;
+  --color-full-black: #000000;
+  --color-heading-charcoal: #343433;
+  --color-body-brown: #474645;
+  --color-muted-gray: #7e7e7d;
+  --color-stone-border: #e5d5c3;
+  --color-link-blue: #0086fc;
+  --color-sky-blue: #64c6ff;
+  --color-alt-blue: #00b2ff;
+  --color-grass-green: #00c978;
+  --color-mint: #00ca48;
+  --color-ember-orange: #ff3e00;
+  --color-sun-yellow: #ffcd6c;
+  --color-gold: #d48f00;
+  --color-honey: #ffbb26;
+  --color-coral-pink: #ff58ae;
+  --color-plum-violet: #9f4fff;
+  --color-alert-red: #ff2b3a;
+
+  /* Type scale — pairs a --text-* size with its line-height & tracking */
+  --text-micro: 12px;
+  --text-micro--line-height: 19px;
+  --text-micro--letter-spacing: -0.01px;
+  --text-caption: 15px;
+  --text-caption--line-height: 22px;
+  --text-caption--letter-spacing: -0.14px;
+  --text-body: 17px;
+  --text-body--line-height: 26px;
+  --text-body--letter-spacing: -0.22px;
+  --text-subheading: 19px;
+  --text-subheading--line-height: 27px;
+  --text-subheading--letter-spacing: -0.3px;
+  --text-heading: 23px;
+  --text-heading--line-height: 25px;
+  --text-heading--letter-spacing: -0.44px;
+  --text-heading-lg: 44px;
+  --text-heading-lg--line-height: 53px;
+  --text-heading-lg--letter-spacing: -0.88px;
+  --text-display: 68px;
+  --text-display--line-height: 75px;
+  --text-display--letter-spacing: -2.1px;
+
+  /* Border radius */
+  --radius-nav: 10px;
+  --radius-cards: 10px;
+  --radius-icons: 40px;
+  --radius-pills: 9999px;
+  --radius-small: 2px;
+  --radius-badges: 6px;
+  --radius-buttons: 32px;
+  --radius-illustration: 72px;
+
+  /* Shadows */
+  --shadow-subtle: color(display-p3 0.94902 0.941176 0.929412) 0px 0px 0px 1px inset;
+  --shadow-subtle-2: color(display-p3 0.94902 0.941176 0.929412) 0px 0px 0px 0px inset;
+  --shadow-subtle-3: rgba(0, 0, 0, 0.04) 0px 0px 0px 1px;
+  --shadow-lg: rgba(0, 0, 0, 0.15) 0px 0px 24px 0px;
+  --shadow-sm: rgba(0, 0, 0, 0.04) 0px 1px 6px 0px, rgba(0, 0, 0, 0.05) 0px 0px 24px 0px;
+}
+
+body {
+  background: var(--color-cream-canvas);
+  color: var(--color-heading-charcoal);
+}
