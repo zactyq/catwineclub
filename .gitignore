@@ -5,3 +5,5 @@ deploy/web.env
 deploy/nocodb.env
 deploy/data/
 deploy/*.tgz
+deploy/*.db
+deploy/*.db-journal
