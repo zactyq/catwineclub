@@ -1,1 +1,7 @@
 .env
+
+# deploy: real secret env files and runtime state never get committed
+deploy/web.env
+deploy/nocodb.env
+deploy/data/
+deploy/*.tgz

@@ -1,0 +1,56 @@
+# Production stack for catwineclub.tanisaac.com (Hostinger VPS).
+#
+#   web    - the Next.js app (built from ../web/Dockerfile)
+#   nocodb - data + attachment storage (SQLite volume)
+#   caddy  - TLS termination + reverse proxy for both public hostnames
+#
+# Secrets live in ./web.env and ./nocodb.env (git-ignored), created from the
+# .example files next to this one. Persistent state: nocodb_data volume and
+# ./data/auth.db bind mount.
+name: catwineclub
+
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+      - nocodb
+
+  web:
+    build:
+      context: ../web
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_BETTER_AUTH_URL: https://catwineclub.tanisaac.com
+    restart: unless-stopped
+    env_file:
+      - ./web.env
+    volumes:
+      - ./data/auth.db:/app/auth.db
+    expose:
+      - "3000"
+    depends_on:
+      - nocodb
+
+  nocodb:
+    image: nocodb/nocodb:latest
+    restart: unless-stopped
+    env_file:
+      - ./nocodb.env
+    volumes:
+      - nocodb_data:/usr/app/data
+    expose:
+      - "8080"
+
+volumes:
+  nocodb_data:
+  caddy_data:
+  caddy_config:
