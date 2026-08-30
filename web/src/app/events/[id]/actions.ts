@@ -2,30 +2,25 @@
 
 import { revalidatePath } from "next/cache";
 import { getViewer } from "@/lib/access";
-import { getEvent } from "@/lib/data/events";
 import { addEventWine, addEventPhoto, addReview, ReviewError } from "@/lib/data/eventContent";
 import { uploadFile } from "@/lib/nocodb";
 
-async function requireApprovedPastEventViewer(eventId: number) {
+async function requireApprovedMember() {
   const viewer = await getViewer();
   if (viewer.status !== "member" || !viewer.isApproved) {
     throw new Error("You need to be an approved member to do that.");
-  }
-  const event = await getEvent(eventId);
-  if (!event) throw new Error("This event no longer exists.");
-  if (new Date(event.EventDate) > new Date()) {
-    throw new Error("This opens up once the event has happened.");
   }
   return viewer;
 }
 
 export async function addEventWineAction(eventId: number, formData: FormData) {
-  const viewer = await requireApprovedPastEventViewer(eventId);
+  const viewer = await requireApprovedMember();
   const wineName = String(formData.get("wineName") ?? "").trim();
   if (!wineName) throw new Error("Wine name is required.");
   const vintage = String(formData.get("vintage") ?? "").trim() || undefined;
+  const description = String(formData.get("description") ?? "").trim() || undefined;
 
-  await addEventWine(eventId, wineName, vintage, viewer.email);
+  await addEventWine(eventId, wineName, vintage, description, viewer.email);
   revalidatePath(`/events/${eventId}`);
 }
 
@@ -39,12 +34,12 @@ export async function addReviewAction(
 ): Promise<ReviewState> {
   const viewer = await getViewer();
   if (viewer.status !== "member" || !viewer.isApproved) {
-    return { error: "You need to be an approved member to review." };
+    return { error: "You need to be an approved member to score a wine." };
   }
-  const rating = Number(formData.get("rating") ?? 0);
+  const score = Number(formData.get("score") ?? 0);
   const comment = String(formData.get("comment") ?? "").trim() || undefined;
   try {
-    await addReview(eventWineId, viewer.email, rating, comment);
+    await addReview(eventWineId, viewer.email, score, comment);
   } catch (err) {
     if (err instanceof ReviewError) return { error: err.message };
     throw err;
@@ -54,7 +49,7 @@ export async function addReviewAction(
 }
 
 export async function addEventPhotoAction(eventId: number, formData: FormData) {
-  const viewer = await requireApprovedPastEventViewer(eventId);
+  const viewer = await requireApprovedMember();
   const file = formData.get("photo");
   if (!(file instanceof File) || file.size === 0) {
     throw new Error("Choose a photo to upload.");

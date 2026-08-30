@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getViewer } from "@/lib/access";
+import CompressedImageInput from "@/components/CompressedImageInput";
 import { bulkImportEventsAction, createEventAction } from "../actions";
 
 export default async function NewEventPage() {
@@ -53,10 +54,25 @@ export default async function NewEventPage() {
         </label>
 
         <label className="flex flex-col gap-2">
-          <span className="text-caption font-medium text-heading-charcoal">Location</span>
+          <span className="text-caption font-medium text-heading-charcoal">
+            Location <span className="text-muted-gray">(display name)</span>
+          </span>
           <input
             name="location"
             type="text"
+            placeholder="e.g. Isaac's Place"
+            className="rounded-cards border border-stone-border bg-cream-canvas px-4 py-2.5 text-body text-heading-charcoal outline-none focus:border-ink-black"
+          />
+        </label>
+
+        <label className="flex flex-col gap-2">
+          <span className="text-caption font-medium text-heading-charcoal">
+            Address <span className="text-muted-gray">(for the map link — optional)</span>
+          </span>
+          <input
+            name="address"
+            type="text"
+            placeholder="e.g. 123 Main St, Singapore"
             className="rounded-cards border border-stone-border bg-cream-canvas px-4 py-2.5 text-body text-heading-charcoal outline-none focus:border-ink-black"
           />
         </label>
@@ -65,12 +81,7 @@ export default async function NewEventPage() {
           <span className="text-caption font-medium text-heading-charcoal">
             Image <span className="text-muted-gray">(optional)</span>
           </span>
-          <input
-            name="image"
-            type="file"
-            accept="image/*"
-            className="rounded-cards border border-stone-border bg-cream-canvas px-4 py-2.5 text-caption text-heading-charcoal outline-none file:mr-3 file:rounded-buttons file:border-0 file:bg-ink-black file:px-3 file:py-1.5 file:text-micro file:font-semibold file:text-cream-canvas"
-          />
+          <CompressedImageInput name="image" />
         </label>
 
         <label className="flex flex-col gap-2">
@@ -103,14 +114,14 @@ export default async function NewEventPage() {
           <p className="text-caption text-body-brown">
             Paste a JSON array of events — ask your favourite AI to format it
             for you. Fields: title, description, eventDate (ISO), location,
-            capacity.
+            address, capacity.
           </p>
         </div>
         <form action={bulkImportEventsAction} className="flex flex-col gap-3">
           <textarea
             name="json"
             rows={8}
-            placeholder='[{"title":"Spring Tasting","eventDate":"2026-09-01T19:00:00","location":"The Cellar","capacity":20}]'
+            placeholder='[{"title":"Spring Tasting","eventDate":"2026-09-01T19:00:00","location":"The Cellar","address":"123 Main St, Singapore","capacity":20}]'
             className="rounded-cards border border-stone-border bg-white px-4 py-2.5 font-mono text-micro text-heading-charcoal outline-none focus:border-ink-black"
           />
           <button

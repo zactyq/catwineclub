@@ -15,6 +15,7 @@ export type EventRecord = {
   Description: string | null;
   EventDate: string;
   Location: string | null;
+  Address: string | null;
   Capacity: number;
   CreatedByEmail: string | null;
   Image: Attachment[] | null;
@@ -39,6 +40,7 @@ export type NewEventInput = {
   description?: string;
   eventDate: string;
   location?: string;
+  address?: string;
   capacity: number;
   createdByEmail: string;
   image?: Attachment;
@@ -50,6 +52,7 @@ function toFields(input: NewEventInput) {
     Description: input.description ?? null,
     EventDate: input.eventDate,
     Location: input.location ?? null,
+    Address: input.address ?? null,
     Capacity: input.capacity,
     CreatedByEmail: input.createdByEmail,
     Image: input.image ? [input.image] : null,

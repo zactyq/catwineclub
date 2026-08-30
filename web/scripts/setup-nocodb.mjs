@@ -81,6 +81,7 @@ const TABLES = [
       { column_name: "Description", title: "Description", uidt: "LongText" },
       { column_name: "EventDate", title: "EventDate", uidt: "DateTime" },
       { column_name: "Location", title: "Location", uidt: "SingleLineText" },
+      { column_name: "Address", title: "Address", uidt: "SingleLineText" },
       { column_name: "Capacity", title: "Capacity", uidt: "Number" },
       {
         column_name: "CreatedByEmail",
@@ -133,6 +134,7 @@ const TABLES = [
       { column_name: "EventId", title: "EventId", uidt: "Number" },
       { column_name: "WineName", title: "WineName", uidt: "SingleLineText" },
       { column_name: "Vintage", title: "Vintage", uidt: "SingleLineText" },
+      { column_name: "Description", title: "Description", uidt: "LongText" },
       {
         column_name: "BroughtByEmail",
         title: "BroughtByEmail",

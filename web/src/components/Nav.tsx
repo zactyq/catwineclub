@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Viewer } from "@/lib/access";
 import SignOutButton from "@/components/SignOutButton";
+import MobileNavMenu from "@/components/MobileNavMenu";
 
 const navLinks = [
   { label: "Home", href: "/" },
@@ -76,6 +77,7 @@ export default function Nav({ viewer }: { viewer: Viewer }) {
               </Link>
             </>
           )}
+          <MobileNavMenu isAdmin={viewer.status === "member" && viewer.isAdmin} />
         </div>
       </div>
     </header>

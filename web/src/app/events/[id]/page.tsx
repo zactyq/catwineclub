@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import ImagePlaceholder from "@/components/ImagePlaceholder";
 import ReviewForm from "@/components/ReviewForm";
+import CompressedImageInput from "@/components/CompressedImageInput";
 import { getViewer } from "@/lib/access";
 import { getEvent } from "@/lib/data/events";
 import { listEventWines, listEventPhotos } from "@/lib/data/eventContent";
@@ -35,15 +36,12 @@ export default async function EventDetailPage({
   const event = await getEvent(eventId, viewerEmail ?? undefined);
   if (!event) notFound();
 
-  const isPast = new Date(event.EventDate) < new Date();
-  const canParticipate = isPast && viewer.status === "member" && viewer.isApproved;
+  const canParticipate = viewer.status === "member" && viewer.isApproved;
 
-  const [wines, photos] = isPast
-    ? await Promise.all([
-        listEventWines(eventId, viewerEmail ?? undefined),
-        listEventPhotos(eventId),
-      ])
-    : [[], []];
+  const [wines, photos] = await Promise.all([
+    listEventWines(eventId, viewerEmail ?? undefined),
+    listEventPhotos(eventId),
+  ]);
 
   return (
     <section className="mx-auto flex w-full max-w-[1200px] flex-1 flex-col gap-12 px-4 py-16 sm:px-6">
@@ -69,7 +67,7 @@ export default async function EventDetailPage({
               <>
                 {" · "}
                 <a
-                  href={googleMapsUrl(event.Location)}
+                  href={googleMapsUrl(event.Address || event.Location)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-link-blue underline underline-offset-2"
@@ -83,12 +81,7 @@ export default async function EventDetailPage({
         {event.Description && <p className="text-body text-body-brown">{event.Description}</p>}
       </div>
 
-      {!isPast ? (
-        <p className="text-center text-body text-body-brown">
-          Wines, ratings, and photos open up here once the event has happened.
-        </p>
-      ) : (
-        <>
+      <>
           {/* Wines from this tasting */}
           <div className="flex flex-col gap-4">
             <h2 className="text-subheading font-medium text-heading-charcoal">
@@ -115,18 +108,23 @@ export default async function EventDetailPage({
                         </p>
                       </div>
                       {wine.averageRating != null && (
-                        <span className="shrink-0 rounded-badges bg-honey/30 px-2 py-1 text-micro text-heading-charcoal">
-                          {"★".repeat(Math.round(wine.averageRating))} (
-                          {wine.reviews.length})
+                        <span className="shrink-0 rounded-badges bg-honey/30 px-2 py-1 text-micro font-semibold text-heading-charcoal">
+                          {Math.round(wine.averageRating)}/100 ({wine.reviews.length})
                         </span>
                       )}
                     </div>
+
+                    {wine.Description && (
+                      <p className="text-caption text-body-brown">{wine.Description}</p>
+                    )}
 
                     {wine.reviews.length > 0 && (
                       <div className="flex flex-col gap-1.5 border-t border-stone-surface pt-3">
                         {wine.reviews.map((r) => (
                           <p key={r.Id} className="text-caption text-body-brown">
-                            <span className="text-heading-charcoal">{"★".repeat(r.Rating)}</span>{" "}
+                            <span className="font-medium text-heading-charcoal">
+                              {r.Rating}/100
+                            </span>{" "}
                             {r.ReviewerEmail}
                             {r.Comment ? ` — ${r.Comment}` : ""}
                           </p>
@@ -147,35 +145,48 @@ export default async function EventDetailPage({
             {canParticipate && (
               <form
                 action={addEventWineAction.bind(null, eventId)}
-                className="flex flex-col gap-3 rounded-cards bg-stone-surface p-6 sm:flex-row sm:items-end"
+                className="flex flex-col gap-3 rounded-cards bg-stone-surface p-6"
               >
-                <label className="flex flex-1 flex-col gap-2">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                  <label className="flex flex-1 flex-col gap-2">
+                    <span className="text-caption font-medium text-heading-charcoal">
+                      I brought...
+                    </span>
+                    <input
+                      name="wineName"
+                      type="text"
+                      required
+                      placeholder="Wine name"
+                      className="rounded-cards border border-stone-border bg-white px-4 py-2.5 text-body text-heading-charcoal outline-none focus:border-ink-black"
+                    />
+                  </label>
+                  <label className="flex flex-col gap-2">
+                    <span className="text-caption font-medium text-heading-charcoal">Vintage</span>
+                    <input
+                      name="vintage"
+                      type="text"
+                      placeholder="Optional"
+                      className="w-28 rounded-cards border border-stone-border bg-white px-4 py-2.5 text-body text-heading-charcoal outline-none focus:border-ink-black"
+                    />
+                  </label>
+                  <button
+                    type="submit"
+                    className="shrink-0 rounded-buttons bg-ink-black px-3.5 py-2.5 text-caption font-semibold text-cream-canvas transition-opacity hover:opacity-90"
+                  >
+                    Add Wine
+                  </button>
+                </div>
+                <label className="flex flex-col gap-2">
                   <span className="text-caption font-medium text-heading-charcoal">
-                    I brought...
+                    Description <span className="text-muted-gray">(optional)</span>
                   </span>
                   <input
-                    name="wineName"
+                    name="description"
                     type="text"
-                    required
-                    placeholder="Wine name"
+                    placeholder="Grape, region, tasting notes..."
                     className="rounded-cards border border-stone-border bg-white px-4 py-2.5 text-body text-heading-charcoal outline-none focus:border-ink-black"
                   />
                 </label>
-                <label className="flex flex-col gap-2">
-                  <span className="text-caption font-medium text-heading-charcoal">Vintage</span>
-                  <input
-                    name="vintage"
-                    type="text"
-                    placeholder="Optional"
-                    className="w-28 rounded-cards border border-stone-border bg-white px-4 py-2.5 text-body text-heading-charcoal outline-none focus:border-ink-black"
-                  />
-                </label>
-                <button
-                  type="submit"
-                  className="shrink-0 rounded-buttons bg-ink-black px-3.5 py-2.5 text-caption font-semibold text-cream-canvas transition-opacity hover:opacity-90"
-                >
-                  Add Wine
-                </button>
               </form>
             )}
           </div>
@@ -215,13 +226,7 @@ export default async function EventDetailPage({
               >
                 <label className="flex flex-col gap-2">
                   <span className="text-caption font-medium text-heading-charcoal">Photo</span>
-                  <input
-                    name="photo"
-                    type="file"
-                    accept="image/*"
-                    required
-                    className="rounded-cards border border-stone-border bg-white px-4 py-2.5 text-caption text-heading-charcoal outline-none file:mr-3 file:rounded-buttons file:border-0 file:bg-ink-black file:px-3 file:py-1.5 file:text-micro file:font-semibold file:text-cream-canvas"
-                  />
+                  <CompressedImageInput name="photo" required />
                 </label>
                 <label className="flex flex-1 flex-col gap-2">
                   <span className="text-caption font-medium text-heading-charcoal">
@@ -243,7 +248,6 @@ export default async function EventDetailPage({
             )}
           </div>
         </>
-      )}
     </section>
   );
 }

@@ -14,6 +14,7 @@ export type EventWine = {
   EventId: number;
   WineName: string;
   Vintage: string | null;
+  Description: string | null;
   BroughtByEmail: string;
 };
 
@@ -22,6 +23,7 @@ export type WineReview = {
   CreatedAt: string;
   EventWineId: number;
   ReviewerEmail: string;
+  /** Score out of 100. */
   Rating: number;
   Comment: string | null;
 };
@@ -76,12 +78,14 @@ export async function addEventWine(
   eventId: number,
   wineName: string,
   vintage: string | undefined,
+  description: string | undefined,
   broughtByEmail: string
 ): Promise<EventWine> {
   return createRecord<EventWine>(TABLES.eventWines, {
     EventId: eventId,
     WineName: wineName,
     Vintage: vintage ?? null,
+    Description: description ?? null,
     BroughtByEmail: broughtByEmail,
   });
 }
@@ -91,11 +95,11 @@ export class ReviewError extends Error {}
 export async function addReview(
   eventWineId: number,
   reviewerEmail: string,
-  rating: number,
+  score: number,
   comment: string | undefined
 ): Promise<WineReview> {
-  if (rating < 1 || rating > 5) {
-    throw new ReviewError("Rating must be between 1 and 5.");
+  if (!Number.isFinite(score) || score < 0 || score > 100) {
+    throw new ReviewError("Score must be between 0 and 100.");
   }
   const existing = await listRecords<WineReview>(TABLES.wineReviews, {
     where: whereEq("EventWineId", eventWineId),
@@ -106,7 +110,7 @@ export async function addReview(
   return createRecord<WineReview>(TABLES.wineReviews, {
     EventWineId: eventWineId,
     ReviewerEmail: reviewerEmail,
-    Rating: rating,
+    Rating: score,
     Comment: comment ?? null,
   });
 }

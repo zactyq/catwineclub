@@ -58,6 +58,7 @@ export async function createEventAction(formData: FormData) {
     eventDate: new Date(eventDate).toISOString(),
     description: String(formData.get("description") ?? "").trim() || undefined,
     location: String(formData.get("location") ?? "").trim() || undefined,
+    address: String(formData.get("address") ?? "").trim() || undefined,
     capacity,
     createdByEmail: viewer.email,
     image,
@@ -91,6 +92,7 @@ export async function bulkImportEventsAction(formData: FormData) {
       description: r.description ? String(r.description) : undefined,
       eventDate: new Date(String(r.eventDate ?? r.date)).toISOString(),
       location: r.location ? String(r.location) : undefined,
+      address: r.address ? String(r.address) : undefined,
       capacity: Number(r.capacity ?? 0),
       createdByEmail: viewer.email,
     };
