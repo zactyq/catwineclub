@@ -51,6 +51,9 @@ services:
       - "8080"
 
 volumes:
+  # Pre-created and seeded from the previous deployment's data during migration.
   nocodb_data:
+    external: true
+    name: catwineclub_nocodb_data
   caddy_data:
   caddy_config:
