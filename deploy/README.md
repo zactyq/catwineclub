@@ -1,42 +1,43 @@
-# Deploy — catwineclub.tanisaac.com
+# Cat Wine Club deployment
 
-Runs on a Hostinger KVM 2 VPS (`187.53.130.40`, Ubuntu 26.04, Docker) at
-`/opt/catwineclub`.
+The application runs on the Hostinger VPS at `/opt/catwineclub` as Compose
+project `catwineclub`.
 
-## Layout
+This repository owns two services:
 
-- `docker-compose.yml` — `caddy` + `web` + `nocodb`
-- `Caddyfile` — TLS + proxy for `catwineclub.tanisaac.com` and `db.catwineclub.tanisaac.com`
-- `web.env` / `nocodb.env` — secrets (git-ignored; see `*.example`)
-- `data/auth.db` — better-auth SQLite (bind-mounted into `web`)
-- `nocodb_data` volume — NocoDB SQLite + uploaded attachments
+- `web`, exposed inside Docker as `catwineclub-main-web:3000`;
+- `nocodb`, exposed inside Docker as `catwineclub-nocodb:8080`.
 
-## First deploy / redeploy
+Both services share the private `catwineclub-backend` network. They also join
+the external `catwineclub-gateway` network only where the shared proxy needs to
+reach them. No service here publishes host ports.
 
-```sh
+TLS, ports 80/443, and all public Caddy routes are owned by the independent
+`shared-proxy` project at `/opt/shared/vps-gateway`. The former Caddy certificate
+volumes remain external state and must never be deleted.
+
+## Deploy
+
+Prerequisites:
+
+```bash
+docker network inspect catwineclub-gateway
+```
+
+Then deploy only this application:
+
+```bash
 cd /opt/catwineclub
-git pull
-docker compose -f deploy/docker-compose.yml up -d --build
+docker compose -f deploy/docker-compose.yml up -d --build --remove-orphans
 docker compose -f deploy/docker-compose.yml ps
 ```
 
-## Restore NocoDB data into the volume
+Secrets remain in `deploy/web.env` and `deploy/nocodb.env`. Persistent data is
+stored in `deploy/data/auth.db` and the external
+`catwineclub_nocodb_data` volume. Do not run `docker compose down -v`.
 
-```sh
-docker compose -f deploy/docker-compose.yml stop nocodb
-docker run --rm -v catwineclub_nocodb_data:/data -v /opt/catwineclub/deploy:/b \
-  alpine sh -c 'rm -rf /data/* && tar xzf /b/nocodb_data.tgz -C /data'
-docker compose -f deploy/docker-compose.yml start nocodb
-```
+## Rollback
 
-## DNS
-
-`catwineclub` and `db.catwineclub` A records under `tanisaac.com` point at the
-VPS (managed via the Hostinger API).
-
-## Notes
-
-- Magic-link email still sends from `mail.catwine.club` (the Resend-verified
-  domain). Verify `tanisaac.com` in Resend and update `EMAIL_FROM` to change it.
-- The old self-hosted stack on the Mac (Cloudflare tunnel → `catwine.club`) is
-  independent and untouched.
+Check out the preceding release and rerun `docker compose up -d --build`. The
+auth database and NocoDB volume remain in place. Shared routing is rolled back
+separately from `/opt/shared/vps-gateway`.

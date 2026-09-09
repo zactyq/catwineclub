@@ -2,7 +2,7 @@
 #
 #   web    - the Next.js app (built from ../web/Dockerfile)
 #   nocodb - data + attachment storage (SQLite volume)
-#   caddy  - TLS termination + reverse proxy for both public hostnames
+# TLS termination and public routing belong to /opt/shared/vps-gateway.
 #
 # Secrets live in ./web.env and ./nocodb.env (git-ignored), created from the
 # .example files next to this one. Persistent state: nocodb_data volume and
@@ -10,26 +10,12 @@
 name: catwineclub
 
 services:
-  caddy:
-    image: caddy:2
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - web
-      - nocodb
-
   web:
     build:
       context: ../web
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_BETTER_AUTH_URL: https://catwineclub.tanisaac.com
+        NEXT_PUBLIC_BETTER_AUTH_URL: https://catwine.club
     restart: unless-stopped
     env_file:
       - ./web.env
@@ -37,6 +23,11 @@ services:
       - ./data/auth.db:/app/auth.db
     expose:
       - "3000"
+    networks:
+      backend:
+      gateway:
+        aliases:
+          - catwineclub-main-web
     depends_on:
       - nocodb
 
@@ -49,11 +40,22 @@ services:
       - nocodb_data:/usr/app/data
     expose:
       - "8080"
+    networks:
+      backend:
+      gateway:
+        aliases:
+          - catwineclub-nocodb
+
+networks:
+  backend:
+    name: catwineclub-backend
+    internal: true
+  gateway:
+    external: true
+    name: catwineclub-gateway
 
 volumes:
   # Pre-created and seeded from the previous deployment's data during migration.
   nocodb_data:
     external: true
     name: catwineclub_nocodb_data
-  caddy_data:
-  caddy_config:

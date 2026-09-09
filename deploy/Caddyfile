@@ -1,9 +1,0 @@
-catwineclub.tanisaac.com {
-	encode gzip zstd
-	reverse_proxy web:3000
-}
-
-db.catwineclub.tanisaac.com {
-	encode gzip zstd
-	reverse_proxy nocodb:8080
-}
